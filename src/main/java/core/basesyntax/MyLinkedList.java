@@ -28,17 +28,21 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         Node<T> newNode = new Node<>(value);
 
         if (index == 0) { // add at head
-            if (head == null) {
-                head = newNode;
+            if (head == null) { // list is empty
+                head = tail = newNode;
             } else {
                 newNode.setNext(head);
                 head.setPrev(newNode);
                 head = newNode;
             }
         } else if (index == size) { // add at tail
-            tail.setNext(newNode);
-            newNode.setPrev(tail);
-            tail = newNode;
+            if (tail == null) { // list is empty
+                head = tail = newNode;
+            } else {
+                tail.setNext(newNode);
+                newNode.setPrev(tail);
+                tail = newNode;
+            }
         } else { // add in the middle
             Node<T> currNode = getNode(index);
             Node<T> prevNode = currNode.getPrev();
