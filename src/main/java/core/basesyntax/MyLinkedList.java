@@ -22,19 +22,8 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     @Override
     public void add(T value, int index) {
         boundsCheckForAdd(index);
-        if (index == 0) {
-            Node<T> newNode = new Node<>(null, value, head);
-            if (head != null) {
-                head.prev = newNode;
-            }
-            head = newNode;
-            if (tail == null) {
-                tail = newNode;
-            }
-            size++;
-            return;
-        }
-        if (index == size) {
+
+        if (index == size) { // add at tail
             add(value);
             return;
         }
@@ -42,7 +31,12 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         Node<T> curr = getNode(index);
         Node<T> prev = curr.prev;
         Node<T> newNode = new Node<>(prev, value, curr);
-        prev.next = newNode;
+
+        if (prev != null) {
+            prev.next = newNode;
+        } else {
+            head = newNode;
+        }
         curr.prev = newNode;
         size++;
     }
@@ -70,22 +64,7 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     @Override
     public T remove(int index) {
         Node<T> node = getNode(index);
-        Node<T> prev = node.prev;
-        Node<T> next = node.next;
-
-        if (prev != null) {
-            prev.next = next;
-        } else {
-            head = next;
-        }
-        if (next != null) {
-            next.prev = prev;
-        } else {
-            tail = prev;
-        }
-
-        size--;
-        return node.value;
+        return unlink(node);
     }
 
     @Override
@@ -93,19 +72,7 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         Node<T> current = head;
         while (current != null) {
             if (object == null ? current.value == null : object.equals(current.value)) {
-                Node<T> prev = current.prev;
-                Node<T> next = current.next;
-                if (prev != null) {
-                    prev.next = next;
-                } else {
-                    head = next;
-                }
-                if (next != null) {
-                    next.prev = prev;
-                } else {
-                    tail = prev;
-                }
-                size--;
+                unlink(current);
                 return true;
             }
             current = current.next;
@@ -140,6 +107,31 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         return current;
     }
 
+    private T unlink(Node<T> node) {
+        Node<T> prevNode = node.prev;
+        Node<T> nextNode = node.next;
+
+        if (prevNode != null) {
+            prevNode.next = nextNode;
+        } else {
+            head = nextNode;
+        }
+
+        if (nextNode != null) {
+            nextNode.prev = prevNode;
+        } else {
+            tail = prevNode;
+        }
+
+        T value = node.value;
+        // clear node references
+        node.prev = null;
+        node.next = null;
+        node.value = null;
+        size--;
+        return value;
+    }
+
     private void boundsCheck(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Out of bounds: " + index);
@@ -152,10 +144,11 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         }
     }
 
+    // Node as private inner class
     private static class Node<T> {
-        private Node<T> prev;
-        private T value;
-        private Node<T> next;
+        T value;
+        Node<T> prev;
+        Node<T> next;
 
         Node(Node<T> prev, T value, Node<T> next) {
             this.prev = prev;
