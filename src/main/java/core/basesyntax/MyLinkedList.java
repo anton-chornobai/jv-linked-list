@@ -153,9 +153,9 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     }
 
     private static class Node<T> {
-        Node<T> prev;
-        T value;
-        Node<T> next;
+        private  Node<T> prev;
+        private T value;
+        private Node<T> next;
 
         Node(Node<T> prev, T value, Node<T> next) {
             this.prev = prev;
